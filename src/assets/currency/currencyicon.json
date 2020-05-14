@@ -1,0 +1,28 @@
+[
+
+    {
+        "name": "Dollar",
+        "symbol": "$",
+        "id": "dollar"
+    },
+    {
+        "name": "Rupees",
+        "symbol": "₹",
+        "id": "rupees"
+    },
+    {
+        "name": "Euro",
+        "symbol": "€",
+        "id": "euro"
+    },
+    {
+        "name": "Yen/Yuan",
+        "symbol": "¥",
+        "id": "yen"
+    },
+    {
+        "name": "Dinar",
+        "symbol": "ع.د",
+        "id": "dinar"
+    }
+]
