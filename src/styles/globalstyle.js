@@ -93,7 +93,7 @@ export const globalStyle = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   lebel: {
     color: '#000',
@@ -104,6 +104,7 @@ export const globalStyle = StyleSheet.create({
     color: '#ff0',
     fontWeight: 'bold',
     textTransform: 'capitalize',
+    marginTop:-3,
   },
   expenseAmount: {
     color: '#000',
@@ -116,17 +117,25 @@ export const globalStyle = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
+  dataLeft: {
+    flex: 7,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
   expenseTag: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    marginBottom:10,
   },
   tagIcon: { 
-    marginRight: 5,
+    marginRight: 4,
+  },
+  calendarIcon: {
+    marginRight: 4,
   },
   expenseDate: {
     fontWeight: 'bold',
-    color: '#777',
-  }
+    color: '#888',
+  },
 });

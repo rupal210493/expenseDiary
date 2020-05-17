@@ -4,7 +4,7 @@ import {
   View,
   Image,
   TouchableOpacity,
-  TouchableHighlight,
+  // TouchableHighlight,
 } from 'react-native';
 import {
   Layout,
@@ -17,6 +17,11 @@ import {
   List,
   ListItem,
 } from '@ui-kitten/components';
+import {
+  TextField,
+  FilledTextField,
+  OutlinedTextField,
+} from 'react-native-material-textfield';
 import {globalStyle} from '../styles/globalstyle';
 import {getUserSettings, saveExpenseList, getExpenseList} from '../db';
 import {DatePicker} from './datepicker';
@@ -74,7 +79,7 @@ class AddUserExpense extends React.Component {
           showModal={() => this.props.setVisible()}>
           <Card disabled={true} style={globalStyle.expenseModalCard}>
             <View>
-              <Text style={globalStyle.lebel}>Enter your amount</Text>
+              <Text style={globalStyle.lebel}>Enter your amount*</Text>
 
               <NumberFormat
                 value={this.state.amount}
@@ -95,13 +100,13 @@ class AddUserExpense extends React.Component {
                 )}
               />
 
-              <Text style={globalStyle.lebel}>Enter expense name</Text>
+              <Text style={globalStyle.lebel}>Enter expense name*</Text>
               <Input
                 value={this.state.name}
                 style={globalStyle.modalInput}
                 onChangeText={newName => this.setState({name: newName})}
               />
-              <Text style={globalStyle.lebel}>Enter expense date</Text>
+              <Text style={globalStyle.lebel}>Enter expense date*</Text>
               <DatePicker
                 style={globalStyle.expenseModalDate}
                 date={this.state.date}
@@ -159,18 +164,18 @@ export class ExpenseList extends React.Component {
   renderItem = ({item, index}) => {
     const cardColor = getRandomColor(item.date);
     return (
-      <ListItem>
+      <ListItem disabled={true}>
         <View
           key={item.expenseId}
           style={{
             ...globalStyle.expenseCard,
             borderLeftColor: cardColor,
-            borderTopColor: hexToRgba(cardColor, 0.1),
-            borderRightColor: hexToRgba(cardColor, 0.1),
-            borderBottomColor: hexToRgba(cardColor, 0.1),
-            backgroundColor: hexToRgba(cardColor, 0.09),
+            borderTopColor: hexToRgba(cardColor, 0.19),
+            borderRightColor: hexToRgba(cardColor, 0.19),
+            borderBottomColor: hexToRgba(cardColor, 0.19),
+            backgroundColor: hexToRgba(cardColor, 0.1),
           }}>
-          <View style={{flex: 7}}>
+          <View style={globalStyle.dataLeft}>
             <View style={globalStyle.expenseTag}>
               <Icon
                 name="pricetags-outline"
@@ -185,31 +190,31 @@ export class ExpenseList extends React.Component {
             </View>
             <View style={globalStyle.expenseTag}>
               <Icon
-                name="pricetags-outline"
+                name="calendar-outline"
                 fill={cardColor}
-                width={25}
-                height={25}
-                style={globalStyle.tagIcon}
+                width={20}
+                height={20}
+                style={globalStyle.calendarIcon}
               />
               <Text
                 style={
                   globalStyle.expenseDate
-                }>{`${item.date
-                .getFullYear()
-                .toString()}-${item.date
-                .getMonth()
-                .toString()}-${item.date.getDate().toString()}`}</Text>
+                }>{`${item.date.getFullYear().toString()}, ${
+                item.date.toDateString().split(' ')[1]
+              } ${item.date.getDate().toString()}`}</Text>
               {/* <Text>{item.expenseId}</Text> */}
             </View>
           </View>
           <View style={globalStyle.dataRight}>
-            <View
-              style={{
-                ...globalStyle.outerIconBg,
-                backgroundColor: hexToRgba(cardColor, 0.6),
+            <TouchableOpacity
+              onPress={() => {
+                this.toggleAddExpenseModal();
               }}>
-              <TouchableHighlight
-                onPress={() => setVisible()}>
+              <View
+                style={{
+                  ...globalStyle.outerIconBg,
+                  backgroundColor: hexToRgba(cardColor, 0.6),
+                }}>
                 <Icon
                   name="edit"
                   fill={'#fff'}
@@ -217,9 +222,8 @@ export class ExpenseList extends React.Component {
                   height={25}
                   style={globalStyle.editIcon}
                 />
-              </TouchableHighlight>
-            </View>
-
+              </View>
+            </TouchableOpacity>
             <Text style={{...globalStyle.expenseAmount, color: cardColor}}>
               {item.amount}
             </Text>
@@ -256,10 +260,12 @@ export class ExpenseList extends React.Component {
             <Image
               //We are making FAB using TouchableOpacity with an image
               //We are using online image here
-              source={{
-                uri:
-                  'https://raw.githubusercontent.com/AboutReact/sampleresource/master/plus_icon.png',
-              }}
+
+              source={require('../assets/plus_icon.png')}
+              // uri:
+              //   // 'https://raw.githubusercontent.com/AboutReact/sampleresource/master/plus_icon.png',
+              //   ''
+
               //You can use you project image Example below
               //source={require('./images/float-add-icon.png')}
               style={styles.FloatingButtonStyle}

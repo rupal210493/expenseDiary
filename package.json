@@ -1,5 +1,5 @@
 {
-  "name": "expenseDiary",
+  "name": "tikku",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -25,6 +25,7 @@
     "react-native-i18n": "^2.0.15",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-localize": "^1.4.0",
+    "react-native-material-textfield": "^0.16.1",
     "react-native-reanimated": "^1.8.0",
     "react-native-router-flux": "^4.2.0",
     "react-native-safe-area-context": "^0.7.3",
