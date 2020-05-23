@@ -62,9 +62,9 @@ class AddUserExpense extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      date: new Date(),
-      amount: null,
-      name: '',
+      date: this.props.expense.date || new Date(),
+      amount: this.props.expense.amount || null,
+      name: this.props.expense.name || '',
       expenseId: this.props.expenseId,
     };
   }
@@ -131,106 +131,178 @@ export class ExpenseList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      expenses: [],
+      expenseMap: {},
+      expenseIds: [],
       showAddExpenseModal: false,
       expenseId: generateId(),
     };
   }
+
+  //  groupExpenseData= (epenseList) => {
+  //        let groupExpenses = [];
+  //         for (let i = 0; i < expenseList.length; i++) {
+  //             let dates = expenseList[i].time.slice(0,10);
+
+  //             if (!groupExpenses[dates]) {
+  //               groupExpenses[dates] = [];
+  //             }
+  //             groupExpenses[dates].push([expenseExpense[i]);
+  //         }
+  //       }
+
   componentDidMount() {
-    let expenses = getExpenseList() || [];
-    this.setState({
-      expenses,
-    });
+    // let expensesData = {};
+    // this.setState({
+    //   expenseIds: expensesData.expenseIds,
+    //   expenseMap: {},
+    // });
   }
-  toggleAddExpenseModal = () => {
-    this.setState({
+  toggleAddExpenseModal = currentExpenseId => {
+    let nextState = {
       showAddExpenseModal: !this.state.showAddExpenseModal,
-    });
+    };
+
+    nextState.expenseId = currentExpenseId || generateId();
+    this.setState(nextState);
   };
-  saveExpenseData = item => {
-    this.setState(
-      {
-        showAddExpenseModal: !this.state.showAddExpenseModal,
-        expenses: [item, ...this.state.expenses],
-        expenseId: generateId(),
-      },
-      () => {
-        console.log('before', this.state.expenses);
-        return saveExpenseList(this.state.expenses);
-      },
+
+  isSameMonth = (d1, d2) => {
+    return (
+      d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth()
     );
   };
 
+  saveExpenseData = item => {
+    let nextState = {
+      showAddExpenseModal: !this.state.showAddExpenseModal,
+      expenseMap: {
+        ...this.state.expenseMap,
+        [item.expenseId]: item,
+      },
+    };
+
+    if (this.state.expenseMap[item.expenseId]) {
+      this.setState(nextState, () => {
+        return saveExpenseList({
+          expenseMap: this.state.expenseMap,
+          expenseIds: this.state.expenseIds,
+        });
+      });
+    } else {
+      let expenseIds = [
+        {expenseId: item.expenseId, date: item.date, type: 'expense'},
+      ];
+      if (this.state.expenseIds.length === 0) {
+        expenseIds = [{type: 'header', date: item.date}, ...expenseIds];
+      } else {
+        if (this.isSameMonth(item.date, this.state.expenseIds[0].date)) {
+          expenseIds = [
+            this.state.expenseIds[0],
+            expenseIds[0],
+            this.state.expenseIds.slice(1),
+          ];
+        } else {
+          expenseIds = [
+            {type: 'header', date: item.date},
+            expenseIds[0],
+            ...this.state.expenseIds,
+          ];
+        }
+      }
+
+      nextState.expenseIds = [...expenseIds, ...this.state.expenseIds];
+      this.setState(nextState, () => {
+        console.log("Current state ", this.state);
+        return saveExpenseList({
+          expenseMap: this.state.expenseMap,
+          expenseIds: this.state.expenseIds,
+        });
+      });
+    }
+  };
+
   renderItem = ({item, index}) => {
-    const cardColor = getRandomColor(item.date);
-    return (
-      <ListItem disabled={true}>
-        <View
-          key={item.expenseId}
-          style={{
-            ...globalStyle.expenseCard,
-            borderLeftColor: cardColor,
-            borderTopColor: hexToRgba(cardColor, 0.19),
-            borderRightColor: hexToRgba(cardColor, 0.19),
-            borderBottomColor: hexToRgba(cardColor, 0.19),
-            backgroundColor: hexToRgba(cardColor, 0.1),
-          }}>
-          <View style={globalStyle.dataLeft}>
-            <View style={globalStyle.expenseTag}>
-              <Icon
-                name="pricetags-outline"
-                fill={cardColor}
-                width={20}
-                height={20}
-                style={globalStyle.tagIcon}
-              />
-              <Text style={{...globalStyle.expenseName, color: cardColor}}>
-                {item.name}
+    if (item.type === 'expense') {
+      console.log('renderItem', item, this.state.expenseMap);
+      const expense = this.state.expenseMap[item.expenseId];
+      const cardColor = getRandomColor(item.date);
+
+      return (
+        <ListItem disabled={true}>
+          <View
+            key={expense.expenseId}
+            style={{
+              ...globalStyle.expenseCard,
+              borderLeftColor: cardColor,
+              borderTopColor: hexToRgba(cardColor, 0.19),
+              borderRightColor: hexToRgba(cardColor, 0.19),
+              borderBottomColor: hexToRgba(cardColor, 0.19),
+              backgroundColor: hexToRgba(cardColor, 0.1),
+            }}>
+            <View style={globalStyle.dataLeft}>
+              <View style={globalStyle.expenseTag}>
+                <Icon
+                  name="pricetags-outline"
+                  fill={cardColor}
+                  width={20}
+                  height={20}
+                  style={globalStyle.tagIcon}
+                />
+                <Text style={{...globalStyle.expenseName, color: cardColor}}>
+                  {expense.name}
+                </Text>
+              </View>
+              <View style={globalStyle.expenseTag}>
+                <Icon
+                  name="calendar-outline"
+                  fill={cardColor}
+                  width={20}
+                  height={20}
+                  style={globalStyle.calendarIcon}
+                />
+                <Text
+                  style={
+                    globalStyle.expenseDate
+                  }>{`${expense.date.getFullYear().toString()}, ${
+                  expense.date.toDateString().split(' ')[1]
+                } ${expense.date.getDate().toString()}`}</Text>
+                {/* <Text>{item.expenseId}</Text> */}
+              </View>
+            </View>
+            <View style={globalStyle.dataRight}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.toggleAddExpenseModal(expense.expenseId);
+                }}>
+                <View
+                  style={{
+                    ...globalStyle.outerIconBg,
+                    backgroundColor: hexToRgba(cardColor, 0.6),
+                  }}>
+                  <Icon
+                    name="edit"
+                    fill={'#fff'}
+                    width={25}
+                    height={25}
+                    style={globalStyle.editIcon}
+                  />
+                </View>
+              </TouchableOpacity>
+              <Text style={{...globalStyle.expenseAmount, color: cardColor}}>
+                {item.amount}
               </Text>
             </View>
-            <View style={globalStyle.expenseTag}>
-              <Icon
-                name="calendar-outline"
-                fill={cardColor}
-                width={20}
-                height={20}
-                style={globalStyle.calendarIcon}
-              />
-              <Text
-                style={
-                  globalStyle.expenseDate
-                }>{`${item.date.getFullYear().toString()}, ${
-                item.date.toDateString().split(' ')[1]
-              } ${item.date.getDate().toString()}`}</Text>
-              {/* <Text>{item.expenseId}</Text> */}
-            </View>
           </View>
-          <View style={globalStyle.dataRight}>
-            <TouchableOpacity
-              onPress={() => {
-                this.toggleAddExpenseModal();
-              }}>
-              <View
-                style={{
-                  ...globalStyle.outerIconBg,
-                  backgroundColor: hexToRgba(cardColor, 0.6),
-                }}>
-                <Icon
-                  name="edit"
-                  fill={'#fff'}
-                  width={25}
-                  height={25}
-                  style={globalStyle.editIcon}
-                />
-              </View>
-            </TouchableOpacity>
-            <Text style={{...globalStyle.expenseAmount, color: cardColor}}>
-              {item.amount}
-            </Text>
-          </View>
+        </ListItem>
+      );
+    } else {
+      return (
+        <View>
+          <Text>{item.date.getFullYear()}</Text>
+          <Text>{item.date.getMonth()}</Text>
         </View>
-      </ListItem>
-    );
+      );
+    }
   };
 
   render() {
@@ -243,7 +315,7 @@ export class ExpenseList extends React.Component {
         </Layout>
         <Layout style={styles.contentSection}>
           <View>
-            <List renderItem={this.renderItem} data={this.state.expenses} />
+            <List renderItem={this.renderItem} data={this.state.expenseIds} />
           </View>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -275,6 +347,7 @@ export class ExpenseList extends React.Component {
             visible={this.state.showAddExpenseModal}
             setVisible={this.toggleAddExpenseModal}
             saveExpenseData={this.saveExpenseData}
+            expense={this.state.expenseMap[this.state.expenseId] || {}}
             expenseId={this.state.expenseId}
             key={this.state.expenseId}
           />
